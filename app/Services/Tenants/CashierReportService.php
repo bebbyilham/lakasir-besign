@@ -28,6 +28,9 @@ class CashierReportService
             ->when($data['start_date'] && $data['end_date'], function (Builder $query) use ($startDate, $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
             })
+            ->when(!empty($data['user']), function (Builder $query) use ($data) {
+                $query->where('user_id', $data['user']);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 

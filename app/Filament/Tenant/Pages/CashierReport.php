@@ -14,6 +14,8 @@ use Filament\Forms\Form;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\Page;
 use Livewire\Attributes\Url;
+use Filament\Forms\Components\Select;
+use App\Models\Tenants\User;
 
 class CashierReport extends Page implements HasActions, HasForms
 {
@@ -31,6 +33,7 @@ class CashierReport extends Page implements HasActions, HasForms
     public ?array $data = [
         'start_date' => null,
         'end_date' => null,
+        'user' => null,
     ];
 
     public $reports = null;
@@ -59,8 +62,22 @@ class CashierReport extends Page implements HasActions, HasForms
                 ->required()
                 ->default(now())
                 ->native(false),
+            Select::make('user')
+                ->label('Cashier')
+                ->options(
+                    User::query()
+                        ->whereNotNull('name')
+                        ->where('name', 'not like', '%admin%')
+                        ->pluck('name', 'id')
+                        ->toArray()
+                )
+                ->searchable()
+                ->nullable()
+
+
+
         ])
-            ->columns(2)
+            ->columns(3)
             ->statePath('data');
     }
 
@@ -90,7 +107,11 @@ class CashierReport extends Page implements HasActions, HasForms
             'data.end_date' => 'required',
         ]);
 
-        $this->reports = $cashierReportService->generate($this->data);
+        $this->reports = $cashierReportService->generate([
+            'start_date' => $this->data['start_date'],
+            'end_date' => $this->data['end_date'],
+            'user' => $this->data['user'] ?? null, // Pastikan user_id bisa null
+        ]);
     }
 
     public function downloadPdf()
