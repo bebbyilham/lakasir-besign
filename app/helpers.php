@@ -47,10 +47,16 @@ if (! function_exists('isMultiTenant')) {
 if (! function_exists('price_format')) {
     function price_format(float $price): string
     {
+        // Deteksi apakah perangkat adalah mobile
+        $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $_SERVER['HTTP_USER_AGENT']);
+
+        // Tentukan locale berdasarkan perangkat
+        $locale = 'en'; // Sesuaikan dengan kebutuhan
+
         return Number::currency(
             number: $price,
             in: Setting::get('currency', 'IDR'),
-            locale: Profile::get()->locale ?? 'en'
+            locale: $locale
         );
     }
 }

@@ -67,7 +67,7 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
               <div class="grid items-center space-x-3">
                 <div class="flex justify-between">
                   <p class="font-semibold"> {{ $item->product->name }}</p>
-                  <p class="font-semibold text-lakasir-primary">{{ $item->price_format_money }}</p>
+                  <p class="font-semibold text-black">{{ $item->price_format_money }}</p>
                 </div>
               </div>
               <div class="grid grid-cols-2 items-center text-right space-y-2">
@@ -89,7 +89,7 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
                   </div>
                   @endfeature
                   @if($item->discount_price && $item->discount_price > 0)
-                    <p class="font-semibold text-lakasir-primary">{{ $item->final_price_format }}</p>
+                    <p class="font-semibold text-black">{{ $item->final_price_format }}</p>
                   @endif
                 </div>
               </div>
@@ -196,7 +196,7 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
             class="w-full p-2 border border-gray-300 rounded-md text-lg text-right dark:bg-gray-900 bg-white dark:text-white text-black @error('payed_money') 'border-danger-500' @enderror"
             focus
             :disabled="isTouchScreen"
-            x-mask:dynamic="$money($input)"
+            {{-- x-mask:dynamic="$money($input)" --}}
             x-on:keyup="changes"
             x-ref="payedMoney"
             inputMode="numeric"
@@ -225,7 +225,7 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
             <div class="flex col-span-3 gap-x-2">
               <button
                 wire:loading.attr="disabled"
-                type="submit" class="w-full bg-lakasir-primary hover:bg-[#ff6611] p-2 rounded-md text-white text-lg flex justify-center items-center gap-x-2">
+                type="submit" class="w-full bg-lakasir-primary hover:bg-[#FFB300 ] p-2 rounded-md text-white text-lg flex justify-center items-center gap-x-2">
                 <div wire:loading>
                   <x-filament::loading-indicator class="h-5 w-5"/>
                 </div>
@@ -429,44 +429,65 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
   Alpine.data('detail', () => {
     return {
       isTouchScreen() {
-        return ( 'ontouchstart' in window ) ||
-          ( navigator.maxTouchPoints > 0 ) ||
-          ( navigator.msMaxTouchPoints > 0 );
+        return ('ontouchstart' in window) ||
+          (navigator.maxTouchPoints > 0) ||
+          (navigator.msMaxTouchPoints > 0);
       },
       displayValue: '',
       paymentMethods: $wire.entangle('paymentMethods'),
       cartDetail: @js($cartDetail),
       subtotal: $wire.entangle('total_price'),
+
       shortcut(number) {
+        this.displayValue = number.toString(); 
         this.$refs.payedMoney.value = moneyFormat(number);
         this.changes();
-        return;
       },
+
       append(number) {
-        if(number == 'no_changes') {
+        if (number === 'no_changes') {
+          this.displayValue = this.subtotal.toString();
           this.$refs.payedMoney.value = moneyFormat(this.subtotal);
           this.changes();
           return;
         }
-        if(number == 'backspace') {
+        if (number === 'backspace') {
           this.displayValue = this.displayValue.slice(0, -1);
-          this.$refs.payedMoney.value = moneyFormat(this.displayValue);
+          this.$refs.payedMoney.value = moneyFormat(this.displayValue || "0");
           this.changes();
           return;
         }
+
         this.displayValue += number;
         this.$refs.payedMoney.value = moneyFormat(this.displayValue);
         this.changes();
       },
+
       changes() {
-        let num = parseFloat(this.$refs.payedMoney.value.replace(/,/g, ''));
+        let num = this.$refs.payedMoney.value
+          .replace(/,/g, '') 
+          .replace(/[^\d.]/g, ''); 
+
+        num = parseFloat(num);
         num = isNaN(num) ? 0 : num;
-        $wire.cartDetail['money_changes'] = num - (this.subtotal);
+
+        $wire.cartDetail['money_changes'] = num - this.subtotal;
         $wire.cartDetail['payed_money'] = num;
+
         this.$refs.moneyChanges.textContent = moneyFormat($wire.cartDetail['money_changes']);
       }
     }
   });
+
+  function moneyFormat(number) {
+    number = parseFloat(number) || 0; 
+    return new Intl.NumberFormat("en-US", {
+      style: "decimal",
+      minimumFractionDigits: 0, 
+      maximumFractionDigits: 0
+    }).format(number);
+  }
+
 
   let barcodeData = '';
   let barcodeTimeout;

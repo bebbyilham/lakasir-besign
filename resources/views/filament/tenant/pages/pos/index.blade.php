@@ -111,7 +111,7 @@
               <div class="mt-2">
                 <p class="text-sm text-gray-500">Total Price</p>
                 <p class="text-gray-900 font-semibold">
-                  <span class="text-lakasir-primary text-sm font-normal" x-text="`Rp. `"></span>
+                  <span class="text-black text-sm font-normal" x-text="`Rp. `"></span>
                   <span x-text="moneyFormat(item.selling_price)"></span>
                 </p>
               </div>

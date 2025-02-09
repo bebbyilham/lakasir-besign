@@ -2,8 +2,8 @@ let selectedDevice = null;
 
 function getPrinter() {
   if (localStorage.printer == undefined) {
-    console.error('printer didn\'t set');
-    return Error('printer didn\'t set');
+    console.error("printer didn't set");
+    return Error("printer didn't set");
   }
 
   return JSON.parse(localStorage.printer);
@@ -15,16 +15,18 @@ async function printToUSBPrinter(text) {
 
   try {
     if (localStorage.printer == undefined) {
-      console.error('No USB printer selected');
+      console.error("No USB printer selected");
       return;
     }
 
     let printer = JSON.parse(localStorage.printer);
     const devices = await navigator.usb.getDevices();
 
-    const device = devices.find(device => device.vendorId === printer.vendorId);
+    const device = devices.find(
+      (device) => device.vendorId === printer.vendorId
+    );
     if (device) {
-      console.log('Found USB device:', device.productName);
+      console.log("Found USB device:", device.productName);
 
       await device.open();
       await device.selectConfiguration(1);
@@ -32,32 +34,41 @@ async function printToUSBPrinter(text) {
 
       const encoder = new TextEncoder();
       const data = encoder.encode(receiptText);
-      const endpoint = device.configuration.interfaces[0].alternate.endpoints.filter(endpoint => endpoint.direction === 'out')[0]
+      const endpoint =
+        device.configuration.interfaces[0].alternate.endpoints.filter(
+          (endpoint) => endpoint.direction === "out"
+        )[0];
       await device.transferOut(endpoint.endpointNumber, data);
 
-      console.log('Data sent to printer');
+      console.log("Data sent to printer");
     } else {
-      console.log('No USB device with the specified vendor ID found');
+      console.log("No USB device with the specified vendor ID found");
       new FilamentNotification()
-        .title('You should choose the printer first in printer setting')
+        .title("You should choose the printer first in printer setting")
         .danger()
         .actions([
-          new FilamentNotificationAction('Setting')
-            .icon('heroicon-o-cog-6-tooth')
+          new FilamentNotificationAction("Setting")
+            .icon("heroicon-o-cog-6-tooth")
             .button()
-            .url('/member/printer'),
+            .url("/member/printer"),
         ])
-        .send()
+        .send();
     }
   } catch (e) {
     console.error(e);
   }
 }
 
-function padText(text, length, alignRight = false, center = false, textSize = 'normal') {
+function padText(
+  text,
+  length,
+  alignRight = false,
+  center = false,
+  textSize = "normal"
+) {
   const sizes = {
-    'normal': '\x1D\x21\x00', // Normal text
-    'large': '\x1D\x21\x11', // Large text
+    normal: "\x1D\x21\x00", // Normal text
+    large: "\x1D\x21\x11", // Large text
   }[textSize];
   let paddedText = text;
 
@@ -65,7 +76,7 @@ function padText(text, length, alignRight = false, center = false, textSize = 'n
     const padLength = Math.max(0, length - text.length);
     const padStart = Math.floor(padLength / 2);
     const padEnd = Math.ceil(padLength / 2);
-    paddedText = ' '.repeat(padStart) + text + ' '.repeat(padEnd);
+    paddedText = " ".repeat(padStart) + text + " ".repeat(padEnd);
   } else if (alignRight) {
     paddedText = text.padStart(length);
   } else {
@@ -76,11 +87,20 @@ function padText(text, length, alignRight = false, center = false, textSize = 'n
 }
 
 function moneyFormat(number, currency = null) {
-  const formatter = new Intl.NumberFormat({
-    style: 'currency',
-    currency: currency,
-  });
+  number = parseFloat(number); // Pastikan input angka
 
+  const options = {};
+
+  if (currency) {
+    options.style = "currency";
+    options.currency = currency;
+  } else {
+    options.style = "decimal";
+    options.minimumFractionDigits = 2;
+    options.maximumFractionDigits = 2;
+  }
+
+  // Paksa format "en-US" agar tetap menggunakan koma untuk ribuan dan titik untuk desimal
+  const formatter = new Intl.NumberFormat("en-US", options);
   return formatter.format(number);
 }
-

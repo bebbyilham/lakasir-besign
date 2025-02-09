@@ -34,7 +34,7 @@
             <span class="text-gray-500">Total Price</span>
             </p>
             <p>
-              <span class="text-lakasir-primary text-sm font-normal">Rp. </span>
+              <span class="text-black text-sm font-normal">Rp. </span>
               <span class="font-semibold" x-text="moneyFormat(cartItem.price)"></span>
             </p>
           </div>
