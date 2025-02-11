@@ -33,19 +33,32 @@
         }
       },
       async fetchTheUsb() {
-        let selectedDevice = null;
-        try {
-          selectedDevice = await navigator.usb.requestDevice({ filters: [] });
-          await selectedDevice.open();
-          await selectedDevice.selectConfiguration(1);
-          await selectedDevice.claimInterface(0);
-          $wire.data.printer = selectedDevice.productName;
-          $wire.data.printerId = selectedDevice.vendorId;
-          console.log('USB printer selected:', selectedDevice.productName);
-        } catch (error) {
-          console.error(error);
+      let selectedDevice = null;
+      try {
+        selectedDevice = await navigator.usb.requestDevice({ filters: [] });
+        await selectedDevice.open();
+        
+        console.log("Available Configurations:", selectedDevice.configurations);
+        await selectedDevice.selectConfiguration(selectedDevice.configurations[0].configurationValue);
+        
+        console.log("Available Interfaces:", selectedDevice.configuration.interfaces);
+        const availableInterfaces = selectedDevice.configuration.interfaces;
+
+        if (availableInterfaces.length > 0) {
+            await selectedDevice.claimInterface(availableInterfaces[0].interfaceNumber);
+            console.log("Interface claimed:", availableInterfaces[0].interfaceNumber);
+        } else {
+            throw new Error("No available interfaces to claim.");
         }
-      },
+
+        $wire.data.printer = selectedDevice.productName;
+        $wire.data.printerId = selectedDevice.vendorId;
+        console.log('USB printer selected:', selectedDevice.productName);
+
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    },
       async fetchBluetooth() {},
       save() {
         $wire.validateInput();
