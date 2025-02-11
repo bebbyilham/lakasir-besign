@@ -54,8 +54,15 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
           </div>
         </div>
         <hr/>
-        <div class="lg:flex hidden justify-between">
-          <p class="">{{ Filament::auth()->user()->cashier_name }}</p>
+        <div class="w-full p-4 bg-white shadow-sm rounded-lg">
+          <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 flex items-center justify-center rounded-full bg-lakasir-primary text-black text-lg font-medium">
+                      {{ $profileInitials }}
+              </div>
+              <div>
+                  <h3 class="text-xl font-semibold text-black">{{ $userName }}</h3>
+              </div>
+          </div>
         </div>
         <div class="flex justify-between items-center">
           <p class="hidden lg:block text-2xl font-semibold mb-2">{{ __('Current Orders') }}</p>

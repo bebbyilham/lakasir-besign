@@ -2,6 +2,7 @@
 
 namespace App\Filament\Tenant\Pages;
 
+use Filament\Facades\Filament;
 use App\Features\Member as FeaturesMember;
 use App\Features\Voucher;
 use App\Filament\Tenant\Pages\Traits\CartInteraction;
@@ -41,7 +42,7 @@ class Cashier extends Page implements HasForms, HasTable
 
     public static ?string $label = 'POS';
 
-    protected static ?string $navigationIcon = 'heroicon-o-bolt';
+    protected static ?string $navigationIcon = 'heroicon-o-calculator';
 
     protected static string $view = 'filament.tenant.pages.cashier';
 
@@ -65,14 +66,24 @@ class Cashier extends Page implements HasForms, HasTable
 
     public float $total_price = 0;
 
+    public float $discount_price = 0;
+
     public ?About $about;
 
     public ?Collection $tableOption;
 
-    private float $discount_price = 0;
+    public string $userName = '';
+
+    public string $profileInitials = '';
 
     public function mount()
     {
+        $user = Filament::auth()->user();
+
+        $this->userName = $user->cashier_name ?? 'Guest';
+
+        $this->profileInitials = $this->getInitials($this->userName);
+
         $this->about = About::first() ?? null;
 
         $this->tax = (float) Setting::get('default_tax', 0);
@@ -114,6 +125,16 @@ class Cashier extends Page implements HasForms, HasTable
         ]);
 
         $this->fillPayemntMethod();
+    }
+
+    private function getInitials($name)
+    {
+        $words = explode(' ', $name);
+        $initials = strtoupper(substr($words[0], 0, 1));
+        if (count($words) > 1) {
+            $initials .= strtoupper(substr($words[1], 0, 1));
+        }
+        return $initials;
     }
 
     protected function getForms(): array
@@ -245,11 +266,11 @@ class Cashier extends Page implements HasForms, HasTable
         $validator = Validator::make($request, [
             'fee' => ['numeric'],
             'payment_method_id' => ['required'],
-            'member_id' => Rule::requiredIf(fn () => $pMethod->is_credit),
-            'due_date' => Rule::requiredIf(fn () => $pMethod->is_credit),
+            'member_id' => Rule::requiredIf(fn() => $pMethod->is_credit),
+            'due_date' => Rule::requiredIf(fn() => $pMethod->is_credit),
             'payed_money' => [
                 ! $pMethod->is_credit ? 'gte:total_price' : null,
-                Rule::requiredIf(fn () => ! $pMethod->is_credit),
+                Rule::requiredIf(fn() => ! $pMethod->is_credit),
             ],
             'total_price' => ['required_if:friend_price,true', 'numeric'],
             'total_qty' => ['required_if:friend_price,true', 'numeric', new ShouldSameWithSellingDetail('qty', $request['products'])],
