@@ -33,32 +33,48 @@
         }
       },
       async fetchTheUsb() {
-      let selectedDevice = null;
-      try {
-        selectedDevice = await navigator.usb.requestDevice({ filters: [] });
-        await selectedDevice.open();
-        
-        console.log("Available Configurations:", selectedDevice.configurations);
-        await selectedDevice.selectConfiguration(selectedDevice.configurations[0].configurationValue);
-        
-        console.log("Available Interfaces:", selectedDevice.configuration.interfaces);
-        const availableInterfaces = selectedDevice.configuration.interfaces;
+        let selectedDevice = null;
+        try {
+          selectedDevice = await navigator.usb.requestDevice({ filters: [] });
+          await selectedDevice.open();
 
-        if (availableInterfaces.length > 0) {
-            await selectedDevice.claimInterface(availableInterfaces[0].interfaceNumber);
-            console.log("Interface claimed:", availableInterfaces[0].interfaceNumber);
-        } else {
-            throw new Error("No available interfaces to claim.");
+          console.log("Device Info:", selectedDevice);
+          
+          // Pilih konfigurasi pertama yang tersedia
+          console.log("Available Configurations:", selectedDevice.configurations);
+          await selectedDevice.selectConfiguration(selectedDevice.configurations[0].configurationValue);
+          
+          // Debug interface
+          console.log("Available Interfaces:", selectedDevice.configuration.interfaces);
+          const availableInterfaces = selectedDevice.configuration.interfaces;
+
+          // Coba klaim interface yang bisa digunakan
+          let claimed = false;
+          for (const iface of availableInterfaces) {
+            try {
+              console.log(`Trying to claim interface ${iface.interfaceNumber}`);
+              await selectedDevice.claimInterface(iface.interfaceNumber);
+              console.log(`Successfully claimed interface ${iface.interfaceNumber}`);
+              claimed = true;
+              break; // Keluar dari loop jika berhasil
+            } catch (error) {
+              console.warn(`Failed to claim interface ${iface.interfaceNumber}:`, error);
+            }
+          }
+
+          if (!claimed) {
+            throw new Error("No available interfaces could be claimed.");
+          }
+
+          $wire.data.printer = selectedDevice.productName;
+          $wire.data.printerId = selectedDevice.vendorId;
+          console.log('USB printer selected:', selectedDevice.productName);
+
+        } catch (error) {
+          console.error("Error:", error);
         }
-
-        $wire.data.printer = selectedDevice.productName;
-        $wire.data.printerId = selectedDevice.vendorId;
-        console.log('USB printer selected:', selectedDevice.productName);
-
-      } catch (error) {
-        console.error("Error:", error);
       }
-    },
+,
       async fetchBluetooth() {},
       save() {
         $wire.validateInput();
