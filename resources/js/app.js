@@ -25,21 +25,40 @@ async function printToUSBPrinter(text) {
     const device = devices.find(
       (device) => device.vendorId === printer.vendorId
     );
+
     if (device) {
       console.log("Found USB device:", device.productName);
 
       await device.open();
-      await device.selectConfiguration(1);
+
+      console.log("Configurations:", device.configurations);
+      await device.selectConfiguration(
+        device.configurations[0].configurationValue
+      );
+      console.log(
+        "Selected Configuration:",
+        device.configuration.configurationValue
+      );
+
       await device.claimInterface(0);
+      console.log("Interface 0 claimed");
 
       const encoder = new TextEncoder();
       const data = encoder.encode(receiptText);
-      const endpoint =
-        device.configuration.interfaces[0].alternate.endpoints.filter(
-          (endpoint) => endpoint.direction === "out"
-        )[0];
-      await device.transferOut(endpoint.endpointNumber, data);
 
+      const endpoints = device.configuration.interfaces[0].alternate.endpoints;
+      console.log("Endpoints:", endpoints);
+
+      if (!endpoints.length) {
+        throw new Error("No available endpoints found for this device.");
+      }
+
+      const endpoint = endpoints.find((ep) => ep.direction === "out");
+      if (!endpoint) {
+        throw new Error("No OUT endpoint found.");
+      }
+
+      await device.transferOut(endpoint.endpointNumber, data);
       console.log("Data sent to printer");
     } else {
       console.log("No USB device with the specified vendor ID found");
@@ -55,7 +74,7 @@ async function printToUSBPrinter(text) {
         .send();
     }
   } catch (e) {
-    console.error(e);
+    console.error("Error:", e);
   }
 }
 
