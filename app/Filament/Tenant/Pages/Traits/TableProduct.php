@@ -71,26 +71,26 @@ trait TableProduct
                             }
 
                             return $product->stock < Setting::get('minimum_stock_nofication', 10)
-                                    ? 'heroicon-s-information-circle'
+                                ? 'heroicon-s-information-circle'
                                 : '';
                         })
                         ->iconColor('danger')
                         ->extraAttributes([
                             'class' => 'font-bold',
                         ])
-                        ->formatStateUsing(fn (Product $product) => __('Stock').': '.$product->stock),
+                        ->formatStateUsing(fn(Product $product) => __('Stock') . ': ' . $product->stock),
                 ]),
             ])
             ->contentGrid([
-                'md' => 3,
-                'xl' => 4,
+                'md' => 4,
+                'xl' => 6,
             ])
             ->headerActionsPosition(HeaderActionsPosition::Bottom)
             ->searchPlaceholder(__('Search (SKU, name, barcode)'))
             ->actions([
                 Action::make('insert_amount')
                     ->translateLabel()
-                    ->icon('heroicon-o-plus')
+                    ->icon('heroicon-o-shopping-cart')
                     ->button()
                     ->form([
                         TextInput::make('amount')
@@ -110,9 +110,9 @@ trait TableProduct
                             ->default(1),
                     ])
                     ->extraAttributes([
-                        'class' => 'mr-auto',
+                        'class' => 'mr-auto w-full',
                     ])
-                    ->action(fn (Product $product, array $data) => $this->addCart($product, $data))
+                    ->action(fn(Product $product, array $data) => $this->addCart($product, $data))
                     ->hiddenLabel(),
                 Action::make('cart')
                     ->label(function (Product $product) {
@@ -120,7 +120,7 @@ trait TableProduct
                     })
                     ->color('white')
                     ->icon('heroicon-o-shopping-bag')
-                    ->hidden(fn (Product $product) => ! $product->CartItems()->exists()),
+                    ->hidden(fn(Product $product) => ! $product->CartItems()->exists()),
             ]);
     }
 }
