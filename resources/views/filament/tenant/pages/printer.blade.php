@@ -33,17 +33,24 @@
         }
       },
       async fetchTheUsb() {
-        let selectedDevice = null;
         try {
-          selectedDevice = await navigator.usb.requestDevice({ filters: [] });
+          let selectedDevice = await navigator.usb.requestDevice({ filters: [] });
+
+          if (!selectedDevice) {
+            console.error("No device selected");
+            return;
+          }
+
           await selectedDevice.open();
           await selectedDevice.selectConfiguration(1);
           await selectedDevice.claimInterface(0);
+
           $wire.data.printer = selectedDevice.productName;
           $wire.data.printerId = selectedDevice.vendorId;
-          console.log('USB printer selected:', selectedDevice.productName);
+
+          console.log("USB printer selected:", selectedDevice.productName);
         } catch (error) {
-          console.error(error);
+          console.error("Error selecting USB printer:", error);
         }
       },
       async fetchBluetooth() {},
