@@ -42,8 +42,22 @@
           }
 
           await selectedDevice.open();
+
+          console.log("Device configurations:", selectedDevice.configurations);
+          console.log("Interfaces:", selectedDevice.configuration.interfaces);
+
+          // Pilih konfigurasi pertama
           await selectedDevice.selectConfiguration(1);
-          await selectedDevice.claimInterface(0);
+
+          // Klaim semua interface yang tersedia
+          for (const iface of selectedDevice.configuration.interfaces) {
+            try {
+              await selectedDevice.claimInterface(iface.interfaceNumber);
+              console.log(`Interface ${iface.interfaceNumber} claimed successfully`);
+            } catch (error) {
+              console.warn(`Failed to claim interface ${iface.interfaceNumber}`, error);
+            }
+          }
 
           $wire.data.printer = selectedDevice.productName;
           $wire.data.printerId = selectedDevice.vendorId;
