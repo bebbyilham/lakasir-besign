@@ -1,13 +1,14 @@
 @php
 use Filament\Facades\Filament;
 use App\Features\{PaymentShortcutButton, SellingTax, Discount};
-
+use App\Models\Tenants\{Profile, Setting, About};
 @endphp
 <div class="">
   <div class="grid grid-cols-3 gap-x-4">
     <div class="col-span-2">
       {{ $this->table }}
     </div>
+    
     <div class="fixed right-0 w-1/3 h-screen pb-10 overflow-y-scroll">
       <div class="px-4 mt-4 space-y-2 h-screen">
         <div class="flex justify-between items-center" x-data="fullscreen">
@@ -150,6 +151,7 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
       </div>
     </div>
   </div>
+  
   {{-- modal --}}
   <x-filament::modal
     id="edit-detail"
@@ -181,6 +183,7 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
                 x-text="paymentMethod.name.substring(0, 8)">
               </div>
             </template>
+             
           </div>
           <x-filament::input.wrapper
             x-show="paymentMethods.filter((pm) => pm.is_credit)[0]?.id == cartDetail['payment_method_id']"
@@ -257,6 +260,7 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
       </div>
     </div>
     </form>
+   
   </x-filament::modal>
   <x-filament::modal
     id="success-modal"
@@ -265,13 +269,65 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
     :close-by-escaping="false"
     >
     <div class="flex justify-center items-center flex-col">
-      <x-heroicon-o-check-circle style="color: rgb(34 197 94); width: 200px" />
+      <x-heroicon-o-check-circle style="color: rgb(34 197 94); width: 100px" />
       <p class="">@lang('Success')</p>
       <p class="font-bold text-3xl">
         @lang('Change'):
         <span id="changes"></span>
       </p>
     </div>
+    {{--print view--}}
+      <x-filament::section id="printElement">
+        <!-- Wrapper utama -->
+        <div class="flex flex-col w-full">
+            <!-- Header (Nama Penjual & Info) -->
+            <div class="flex flex-col items-center gap-2 border-b pb-4">
+                <h4 id="nama_penjual" class="font-semibold"></h4>
+                <p class="text-xs">Some address goes here</p>
+            </div>
+
+            <!-- Informasi Order -->
+            <div class="flex flex-col gap-3 border-b py-6 text-xs">
+                <p class="flex justify-between"><span class="text-black">Kode:</span> <span id="selling_code"></span></p>
+                <p class="flex justify-between"><span class="text-black">Tanggal:</span> <span id="selling_date"></span></p>
+                <p class="flex justify-between"><span class="text-black">Customer:</span> <span id="customer"></span></p>
+                <p class="flex justify-between"><span id="kasir" class="text-black">Kasir:</span> <span>{{ $userName }}</span></p>
+            </div>
+
+            <!-- Daftar Item -->
+            <div class="flex flex-col gap-3 pb-6 pt-2 text-xs">
+                <table class="w-full text-left">
+                  <thead>
+                      <tr class="border-b">
+                          <th class="py-2">Product</th>
+                          <th class="py-2">QTY</th>
+                          <th class="py-2">Total</th>
+                      </tr>
+                  </thead>
+                  <tbody id="product_list">
+                      <!-- Data akan ditambahkan di sini dengan JavaScript -->
+                  </tbody>
+              </table>
+
+            </div>
+
+            <!-- Footer (Total & Info Kontak) -->
+            <div class="border-b py-4 text-xs">
+                <p class="flex justify-between"><span class="text-black">Sub total:</span> <span id="subtotal"></span></p>
+                <p class="flex justify-between"><span class="text-black">Pajak:</span> <span id="pajak"></span></p>
+                <p class="flex justify-between"><span class="text-black">Diskon:</span> <span id="diskon"></span></p>
+                <p class="flex justify-between"><span class="text-black">Grand Total:</span> <span id="grandtotal"></span></p>
+                <p class="flex justify-between"><span class="text-black">@lang('Payed money'):</span> <span id="bayar"></span></p>
+                <p class="flex justify-between"><span class="text-black">@lang('Change'):</span> <span id="kembalian"></span></p>
+            </div>
+
+            <!-- Info Kontak -->
+            <div class="py-4 flex flex-col items-center gap-2 text-xs">
+                <p>info@example.com</p>
+                <p>+234XXXXXXXX</p>
+            </div>
+        </div>
+      </x-filament::section>
     <x-slot name="footer">
       <div class="grid grid-cols-2 gap-x-2">
         <x-filament::button icon="heroicon-m-printer" id="printReceiptButton">
@@ -320,30 +376,99 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
 <script>
   let selling = null;
   $wire.on('selling-created', (event) => {
-    selling = event.selling;
-    $wire.dispatch('close-modal', {id: 'proceed-the-payment'});
+      selling = event.selling;
 
-    $wire.dispatch('open-modal', {id: 'success-modal', money_changes: selling.money_changes });
-    setTimeout(() => {
-      document.getElementById('changes').innerHTML = moneyFormat(selling.money_changes);
-    }, 300);
+      $wire.dispatch('close-modal', { id: 'proceed-the-payment' });
+      $wire.dispatch('open-modal', { id: 'success-modal', money_changes: selling.money_changes });
+
+      setTimeout(() => {
+          about = @js($about);
+
+          // Cek apakah `product_list` ada
+          let productList = document.getElementById('product_list');
+          if (!productList) {
+              console.error('Element #product_list tidak ditemukan');
+              return;
+          }
+
+          productList.innerHTML = '';
+
+          // Pastikan `selling` memiliki data
+          if (!selling || !selling.selling_details) {
+              console.error('Data selling tidak ditemukan!');
+              return;
+          }
+
+          selling.selling_details.forEach(sellingDetail => {
+              let row = document.createElement('tr');
+              row.innerHTML = `
+                  <td>${sellingDetail.product.name}</td>
+                  <td>${sellingDetail.qty} x ${moneyFormat(sellingDetail.price / sellingDetail.qty)}</td>
+                  <td>${moneyFormat(sellingDetail.price)}</td>
+              `;
+              productList.appendChild(row);
+          });
+
+          let setInnerText = (id, value) => {
+              let el = document.getElementById(id);
+              if (el) {
+                  el.innerHTML = value;
+              } else {
+                  console.error(`Element #${id} tidak ditemukan di DOM`);
+              }
+          };
+
+          console.log('Data selling:', selling); // Debugging
+          console.log('Subtotal:', selling.total_price);
+
+          let elSubtotal = document.getElementById('subtotal');
+          if (elSubtotal) {
+              elSubtotal.innerHTML = moneyFormat(selling.total_price);
+              console.log("✅ Subtotal berhasil diisi:", moneyFormat(selling.total_price));
+          } else {
+              console.error("❌ Gagal mengisi subtotal, elemen tidak ditemukan!");
+          }
+
+          document.getElementById('changes').innerHTML = moneyFormat(selling.money_changes);
+          document.getElementById('subtotal').innerHTML = moneyFormat(selling.total_price);
+          document.getElementById('pajak').innerHTML = moneyFormat(selling.tax);
+          document.getElementById('kembalian').innerHTML = moneyFormat(selling.money_changes);
+          document.getElementById('grandtotal').innerHTML = moneyFormat(selling.grand_total_price);
+          document.getElementById('bayar').innerHTML = moneyFormat(selling.payed_money);
+          document.getElementById('diskon').innerHTML = moneyFormat(selling.total_discount_per_item + selling.discount_price);
+          document.getElementById('nama_penjual').innerHTML = moneyFormat(about.shop_name);
+          document.getElementById('kasir').innerHTML = moneyFormat(selling.user.name);
+          document.getElementById('selling_code').innerHTML = moneyFormat(selling.code);
+          document.getElementById('customer').innerHTML = moneyFormat(selling.code);
+          document.getElementById('selling_date').innerHTML = moneyFormat(selling.date);
+
+          console.log("shopname:", about.shop_name);
+          console.log("✅ Script berhasil dijalankan sampai akhir");
+      }, 350);
   });
+
+
+  
+  
+
   document.getElementById("printReceiptButton").addEventListener('click', async (event) => {
     let about = @js($about);
     const printerData = getPrinter();
-
+      printReceipt()
     try {
       if (!printerData) {
-        new FilamentNotification()
-          .title('@lang('You should choose the printer first in printer setting')')
-          .danger()
-          .actions([
-            new FilamentNotificationAction('Setting')
-            .icon('heroicon-o-cog-6-tooth')
-            .button()
-            .url('/member/printer'),
-          ])
-          .send()
+      
+        // new FilamentNotification()
+        //   .title('@lang('You should choose the printer first in printer setting')')
+        //   .danger()
+        //   .actions([
+        //     new FilamentNotificationAction('Setting')
+        //     .icon('heroicon-o-cog-6-tooth')
+        //     .button()
+        //     .url('/member/printer'),
+        //   ])
+        //   .send()
+        
       } else {
         const printer = new Printer(printerData.printerId);
         let printerAction = printer.font('a');
@@ -418,6 +543,16 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
       console.error(error);
     }
   });
+
+  function printReceipt() {
+    let printContent = document.getElementById("printElement").innerHTML;
+    let originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = printContent;  // Ganti seluruh body dengan elemen yang dicetak
+    window.print();
+    document.body.innerHTML = originalContent;  // Kembalikan tampilan asli setelah cetak
+    location.reload(); // Reload agar halaman kembali normal
+}
 
   Alpine.data('fullscreen', () => {
     return {

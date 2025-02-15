@@ -55,50 +55,50 @@
           @foreach($record->sellingDetails as $detail)
             <tr>
               <td class="p-2 border">
-                <h3 class="text-primary">{{ $detail->product->name }}</h3><span class="text-sm text-secondary"></span></td>
-              <td class="p-2 border text-center text-primary">{{ Number::currency($detail->price, Setting::get('currency', 'IDR')) }}</td>
-              <td class="p-2 border text-center text-primary">{{ $detail->qty }}</td>
-              <td class="p-2 border text-center text-primary">{{ Number::currency($detail->discount_price, Setting::get('currency', 'IDR')) }}</td>
-              <td class="p-2 border text-center text-primary">{{ Number::currency($detail->total_price, Setting::get('currency', 'IDR')) }}</td>
+                <h3 class="text-black">{{ $detail->product->name }}</h3><span class="text-sm text-secondary"></span></td>
+              <td class="p-2 border text-center text-black">{{ Number::currency($detail->price, Setting::get('currency', 'IDR')) }}</td>
+              <td class="p-2 border text-center text-black">{{ $detail->qty }}</td>
+              <td class="p-2 border text-center text-black">{{ Number::currency($detail->discount_price, Setting::get('currency', 'IDR')) }}</td>
+              <td class="p-2 border text-center text-black">{{ Number::currency($detail->total_price, Setting::get('currency', 'IDR')) }}</td>
             </tr>
           @endforeach
         </tbody>
         <tfoot class="font-semibold">
           <tr>
-            <td class="p-2 border text-center text-primary" colspan="3"></td>
-            <td class="p-2 border text-primary text-left">@lang('Subtotal')</td>
-            <td class="p-2 border text-right text-primary">{{ Number::currency($record->total_price, Setting::get('currency', 'IDR')) }}</td>
+            <td class="p-2 border text-center text-black" colspan="3"></td>
+            <td class="p-2 border text-black text-left">@lang('Subtotal')</td>
+            <td class="p-2 border text-right text-black">{{ Number::currency($record->total_price, Setting::get('currency', 'IDR')) }}</td>
           </tr>
           <tr>
-            <td class="p-2 border text-center text-primary" colspan="3"></td>
-            <td class="p-2 border text-primary text-left">@lang('Discount')</td>
-            <td class="p-2 border text-right text-primary">{{ Number::currency($record->total_discount_per_item + $record->discount_price, Setting::get('currency', 'IDR')) }}</td>
+            <td class="p-2 border text-center text-black" colspan="3"></td>
+            <td class="p-2 border text-black text-left">@lang('Discount')</td>
+            <td class="p-2 border text-right text-black">{{ Number::currency($record->total_discount_per_item + $record->discount_price, Setting::get('currency', 'IDR')) }}</td>
           </tr>
           <!---->
           <tr>
-            <td class="p-2 border text-center text-primary" colspan="3"></td>
-            <td class="p-2 border text-primary text-left">@lang('Tax')</td>
-            <td class="p-2 border text-right text-primary">{{ $record->tax }}%</td>
+            <td class="p-2 border text-center text-black" colspan="3"></td>
+            <td class="p-2 border text-black text-left">@lang('Tax')</td>
+            <td class="p-2 border text-right text-black">{{ $record->tax }}%</td>
           </tr>
           <tr>
-            <td class="p-2 border text-center text-primary" colspan="3"></td>
-            <td class="p-2 border text-primary text-left">@lang('Tax price')</td>
-            <td class="p-2 border text-right text-primary">{{ Number::currency($record->tax_price, Setting::get('currency', 'IDR')) }}</td>
+            <td class="p-2 border text-center text-black" colspan="3"></td>
+            <td class="p-2 border text-black text-left">@lang('Tax price')</td>
+            <td class="p-2 border text-right text-black">{{ Number::currency($record->tax_price, Setting::get('currency', 'IDR')) }}</td>
           </tr>
           <tr>
-            <td class="p-2 border text-center text-primary" colspan="3"></td>
-            <td class="p-2 border text-primary text-left">@lang('Total')</td>
-            <td class="p-2 border text-right text-primary">{{ Number::currency($record->grand_total_price, Setting::get('currency', 'IDR')) }}</td>
+            <td class="p-2 border text-center text-black" colspan="3"></td>
+            <td class="p-2 border text-black text-left">@lang('Total')</td>
+            <td class="p-2 border text-right text-black">{{ Number::currency($record->grand_total_price, Setting::get('currency', 'IDR')) }}</td>
           </tr>
           <tr>
-            <td class="p-2 border text-center text-primary" colspan="3"></td>
-            <td class="p-2 border text-primary text-left">@lang('Payed money')</td>
-            <td class="p-2 border text-right text-primary">{{ Number::currency($record->payed_money, Setting::get('currency', 'IDR')) }}</td>
+            <td class="p-2 border text-center text-black" colspan="3"></td>
+            <td class="p-2 border text-black text-left">@lang('Payed money')</td>
+            <td class="p-2 border text-right text-black">{{ Number::currency($record->payed_money, Setting::get('currency', 'IDR')) }}</td>
           </tr>
           <tr>
-            <td class="p-2 border text-center text-primary" colspan="3"></td>
-            <td class="p-2 border text-primary text-left">@lang('Money changes')</td>
-            <td class="p-2 border text-right text-primary">{{ Number::currency($record->money_changes, Setting::get('currency', 'IDR')) }}</td>
+            <td class="p-2 border text-center text-black" colspan="3"></td>
+            <td class="p-2 border text-black text-left">@lang('Money changes')</td>
+            <td class="p-2 border text-right text-black">{{ Number::currency($record->money_changes, Setting::get('currency', 'IDR')) }}</td>
           </tr>
         </tfoot>
       </table>
