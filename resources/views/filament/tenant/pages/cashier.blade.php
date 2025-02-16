@@ -270,7 +270,7 @@ use App\Models\Tenants\{Profile, Setting, About};
     >
     <div class="flex justify-center items-center flex-col">
       <x-heroicon-o-check-circle style="color: rgb(34 197 94); width: 100px" />
-      <p class="">@lang('Success')</p>
+      {{-- <p class="">@lang('Success')</p> --}}
       <p class="font-bold text-3xl">
         @lang('Change'):
         <span id="changes"></span>
@@ -282,16 +282,16 @@ use App\Models\Tenants\{Profile, Setting, About};
         <div class="flex flex-col w-full">
             <!-- Header (Nama Penjual & Info) -->
             <div class="flex flex-col items-center gap-2 border-b pb-4">
-                <h4 id="nama_penjual" class="font-semibold"></h4>
-                <p class="text-xs">Some address goes here</p>
+                <h4 id="shop_name" class="font-semibold"></h4>
+                <p id="shop_location" class="text-xs"></p>
             </div>
 
             <!-- Informasi Order -->
-            <div class="flex flex-col gap-3 border-b py-6 text-xs">
+            <div class="flex flex-col border-b py-6 text-xs">
                 <p class="flex justify-between"><span class="text-black">Kode:</span> <span id="selling_code"></span></p>
                 <p class="flex justify-between"><span class="text-black">Tanggal:</span> <span id="selling_date"></span></p>
                 <p class="flex justify-between"><span class="text-black">Customer:</span> <span id="customer"></span></p>
-                <p class="flex justify-between"><span id="kasir" class="text-black">Kasir:</span> <span>{{ $userName }}</span></p>
+                <p class="flex justify-between"><span class="text-black">Kasir:</span> <span id="kasir"></span></p>
             </div>
 
             <!-- Daftar Item -->
@@ -323,8 +323,8 @@ use App\Models\Tenants\{Profile, Setting, About};
 
             <!-- Info Kontak -->
             <div class="py-4 flex flex-col items-center gap-2 text-xs">
-                <p>info@example.com</p>
-                <p>+234XXXXXXXX</p>
+                {{-- <p>info@example.com</p>
+                <p>+234XXXXXXXX</p> --}}
             </div>
         </div>
       </x-filament::section>
@@ -418,16 +418,16 @@ use App\Models\Tenants\{Profile, Setting, About};
               }
           };
 
-          console.log('Data selling:', selling); // Debugging
-          console.log('Subtotal:', selling.total_price);
+          // console.log('Data selling:', selling); // Debugging
+          // console.log('Subtotal:', selling.total_price);
 
-          let elSubtotal = document.getElementById('subtotal');
-          if (elSubtotal) {
-              elSubtotal.innerHTML = moneyFormat(selling.total_price);
-              console.log("✅ Subtotal berhasil diisi:", moneyFormat(selling.total_price));
-          } else {
-              console.error("❌ Gagal mengisi subtotal, elemen tidak ditemukan!");
-          }
+          // let elSubtotal = document.getElementById('subtotal');
+          // if (elSubtotal) {
+          //     elSubtotal.innerHTML = moneyFormat(selling.total_price);
+          //     console.log("✅ Subtotal berhasil diisi:", moneyFormat(selling.total_price));
+          // } else {
+          //     console.error("❌ Gagal mengisi subtotal, elemen tidak ditemukan!");
+          // }
 
           document.getElementById('changes').innerHTML = moneyFormat(selling.money_changes);
           document.getElementById('subtotal').innerHTML = moneyFormat(selling.total_price);
@@ -436,13 +436,14 @@ use App\Models\Tenants\{Profile, Setting, About};
           document.getElementById('grandtotal').innerHTML = moneyFormat(selling.grand_total_price);
           document.getElementById('bayar').innerHTML = moneyFormat(selling.payed_money);
           document.getElementById('diskon').innerHTML = moneyFormat(selling.total_discount_per_item + selling.discount_price);
-          document.getElementById('nama_penjual').innerHTML = moneyFormat(about.shop_name);
-          document.getElementById('kasir').innerHTML = moneyFormat(selling.user.name);
-          document.getElementById('selling_code').innerHTML = moneyFormat(selling.code);
-          document.getElementById('customer').innerHTML = moneyFormat(selling.code);
-          document.getElementById('selling_date').innerHTML = moneyFormat(selling.date);
+          document.getElementById('shop_name').innerHTML = about.shop_name;
+          document.getElementById('shop_location').innerHTML = about.shop_location;
+          document.getElementById('kasir').innerHTML = selling.user.name;
+          document.getElementById('selling_code').innerHTML = selling.code;
+          document.getElementById('customer').innerHTML = selling.note;
+          document.getElementById('selling_date').innerHTML = selling.date;
 
-          console.log("shopname:", about.shop_name);
+          // console.log("shopname:", about.shop_name);
           console.log("✅ Script berhasil dijalankan sampai akhir");
       }, 350);
   });

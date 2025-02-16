@@ -12,20 +12,18 @@ class StockService
     private function adjustStockPrepare(Product $product): Stock
     {
         if (Setting::get('selling_method', env('SELLING_METHOD', 'fifo')) == 'normal') {
-            /** @var Stock $lastStock */
             $lastStock = $product
                 ->stocks()
                 ->where('stock', '>', 0)
                 ->orderBy('date', 'asc')
-                ->latest()
                 ->first();
         } else {
-            /** @var Stock $lastStock */
             $lastStock = $product->stockLatestCalculateIn()->first();
         }
 
         return $lastStock;
     }
+
 
     public function addStock(Product $product, $qty): void
     {

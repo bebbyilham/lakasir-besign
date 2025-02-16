@@ -20,6 +20,7 @@ export default {
         sans: ["Figtree", ...defaultTheme.fontFamily.sans],
       },
       colors: {
+        primary: "#FFC107 ",
         lakasir: {
           primary: "#FFC107 ",
         },
