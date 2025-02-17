@@ -279,7 +279,7 @@ use App\Models\Tenants\{Profile, Setting, About};
     {{--print view--}}
       <x-filament::section id="printElement">
         <!-- Wrapper utama -->
-        <div class="flex flex-col w-full">
+        <div class="flex flex-col w-full font-mono">
             <!-- Header (Nama Penjual & Info) -->
             <div class="flex flex-col items-center gap-2 border-b pb-4">
                 <h4 id="shop_name" class="font-semibold"></h4>
