@@ -78,10 +78,10 @@ use App\Models\Tenants\{Profile, Setting, About};
                   <p class="font-semibold text-black">{{ $item->price_format_money }}</p>
                 </div>
               </div>
-              <div class="grid grid-cols-2 items-center text-right space-y-2 py-2">
+              <div class="grid grid-cols-2 items-center text-right space-y-2">
                 <div class="col-span-2">
                   @feature(Discount::class)
-                  <div class="flex justify-end mb-1">
+                  <div class="flex justify-end">
                     <x-filament::input.wrapper class="w-1/2">
                       <x-filament::input
                         type="text"
@@ -109,21 +109,10 @@ use App\Models\Tenants\{Profile, Setting, About};
                     >
                     <x-heroicon-o-plus-small class="!text-white h-4 w-4"/>
                   </button>
-                    <x-filament::input.wrapper class="w-20" x-data="cart">
-                      <x-filament::input
-                        type="text"
-                        id="{{ $item->product->name }}-{{ $item->id }}-qty-{{ rand() }}"
-                        data-value="{{ $item->qty }}"
-                        value="{{ $item->qty }}"
-                        x-on:keyup.debounce.500ms="(e) => add('{{ $item->product_id }}', e.target.value)"
-                        placeholder="{{ __('Discount') }}"
-                        class="text-right w-1/2"
-                        inputMode="numeric"
-                        />
-                      </x-filament::input.wrapper>
+                  <p class="my-auto">{{ $item->qty }}</p>
                   <button
                     class="!bg-gray-100 rounded-lg px-2 py-1"
-                    x-on:click="$wire.reduceCart({{  $item->product_id  }});"
+                    wire:click="reduceCart({{  $item->product_id  }})"
                     wire:loading.attr="disabled"
                     >
                     <x-heroicon-o-minus-small class="!text-green-900 h-4 w-4"/>
@@ -633,7 +622,6 @@ use App\Models\Tenants\{Profile, Setting, About};
     }
   });
 
-<<<<<<< HEAD
   function moneyFormat(number) {
     number = parseFloat(number) || 0; 
     return new Intl.NumberFormat("en-US", {
@@ -643,16 +631,6 @@ use App\Models\Tenants\{Profile, Setting, About};
     }).format(number);
   }
 
-=======
-  Alpine.data('cart', () => {
-    return {
-      add: (productId, amount) => {
-        $wire.addCart(productId, {amount: amount ?? 0})
-        console.log(productId, amount)
-      }
-    }
-  })
->>>>>>> 545b663ad937c08871ae0e0ce2b430b4327d49a9
 
   let barcodeData = '';
   let barcodeTimeout;
