@@ -55,11 +55,19 @@
           @foreach($record->sellingDetails as $detail)
             <tr>
               <td class="p-2 border">
+<<<<<<< HEAD
                 <h3 class="text-black">{{ $detail->product->name }}</h3><span class="text-sm text-secondary"></span></td>
               <td class="p-2 border text-center text-black">{{ Number::currency($detail->price, Setting::get('currency', 'IDR')) }}</td>
               <td class="p-2 border text-center text-black">{{ $detail->qty }}</td>
               <td class="p-2 border text-center text-black">{{ Number::currency($detail->discount_price, Setting::get('currency', 'IDR')) }}</td>
               <td class="p-2 border text-center text-black">{{ Number::currency($detail->total_price, Setting::get('currency', 'IDR')) }}</td>
+=======
+                <h3 class="text-primary">{{ $detail->product->name }}</h3><span class="text-sm text-secondary"></span></td>
+              <td class="p-2 border text-center text-primary">{{ Number::currency($detail->price_per_unit, Setting::get('currency', 'IDR')) }}</td>
+              <td class="p-2 border text-center text-primary">{{ $detail->qty }}</td>
+              <td class="p-2 border text-center text-primary">{{ Number::currency($detail->discount_price, Setting::get('currency', 'IDR')) }}</td>
+              <td class="p-2 border text-center text-primary">{{ Number::currency($detail->total_price, Setting::get('currency', 'IDR')) }}</td>
+>>>>>>> 545b663ad937c08871ae0e0ce2b430b4327d49a9
             </tr>
           @endforeach
         </tbody>

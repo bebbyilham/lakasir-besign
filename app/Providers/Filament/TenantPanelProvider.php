@@ -41,6 +41,7 @@ use App\Filament\Tenant\Resources\VoucherResource;
 use App\Http\Middleware\LocalizationMiddleware;
 use App\Models\Tenants\About;
 use App\Tenant;
+use Filament\Forms\Components\DatePicker;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -62,14 +63,27 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\View\View;
 use Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper;
 
 class TenantPanelProvider extends PanelProvider
 {
+    public function register(): void
+    {
+        parent::register();
+        DatePicker::configureUsing(function (DatePicker $datePicker): void {
+            $datePicker
+                ->closeOnDateSelection()
+                ->native(false);
+        });
+
+    }
+
     public function panel(Panel $panel): Panel
     {
         $panel = $this->configurePanel($panel);
@@ -85,6 +99,20 @@ class TenantPanelProvider extends PanelProvider
             PanelsRenderHook::HEAD_END,
             fn() => view('meta')
         );
+
+        if (app()->environment('demo')) {
+            $arraySupport = [
+                'https://saweria.co/sheenazien',
+                'https://trakteer.id/sheenazien8/tip',
+                'https://buymeacoffee.com/sheenazien8',
+            ];
+            FilamentView::registerRenderHook(
+                PanelsRenderHook::BODY_START,
+                fn (): View => view('donation-banner', [
+                    'link' => Arr::random($arraySupport),
+                ]),
+            );
+        }
 
         return $panel;
     }
